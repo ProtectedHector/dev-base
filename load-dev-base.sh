@@ -6,12 +6,12 @@
 #sudo apachectl -k stop     # Mac
 
 # Fresh Installation
-#	docker rm -f $(docker stop $(docker ps -aq))
-#	docker volume rm $(docker volume ls)
-#	docker rmi $(docker image ls)
-#	docker system prune -a -f
-#	docker system df
-#	docker network create dev-base
+#docker rm -f $(docker stop $(docker ps -aq))
+#docker volume rm $(docker volume ls)
+#docker rmi $(docker image ls)
+#docker system prune -a -f
+#docker system df
+#docker network create dev-base
 
 # Bring up deb-base containers
 cd ~/Dev/dev-base/
