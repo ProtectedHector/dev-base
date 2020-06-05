@@ -1,2 +1,5 @@
 # Volumes of containers
 .data/*
+
+portainer/*
+!portainer/.gitkeep
