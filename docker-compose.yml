@@ -35,29 +35,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer:/data
 
-  es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.1
-    container_name: dev-base-elasticsearch
-    environment:
-      - node.name=es01
-      - cluster.name=es-docker-cluster
-      - cluster.initial_master_nodes=es01
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    ports:
-      - 9200:9200
-    volumes:
-      - './var/elasticsearch:/usr/share/elasticsearch/data'
-
   logstash:
     image: docker.elastic.co/logstash/logstash:7.7.1
     container_name: dev-base-logstash
     ports: ['9600:9600']
-    depends_on: ['es01']
+    depends_on: ['elasticsearch']
     volumes:
       - './etc/logstash/pipeline:/usr/share/logstash/pipeline'
       - './var/logs:/logs'
@@ -73,9 +55,24 @@ services:
 #      - './etc/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml'
     command: ["--strict.perms=false"]
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - './var/elasticsearch:/usr/share/elasticsearch/data'
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks
+      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+
   kibana:
     image: docker.elastic.co/kibana/kibana:7.7.1
-    container_name: dev-base-kibana
-    ports: ['5601:5601']
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     depends_on:
-      - 'es01'
+      - 'elasticsearch'
